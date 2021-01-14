@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -14,15 +15,20 @@ namespace TradingBlockApiTestHarness.Streaming
     /// </summary>
     internal sealed class Client : IDisposable
     {
+        private static readonly string streamingUrl = ConfigurationManager.AppSettings["StreamingUrl"];
+
         private readonly WSClient client;
         private readonly string token;
         private readonly int accountId;
 
-        internal Client(string token, int accountId, string url)
+        internal Client(string token)
         {
+            int temp;
+            if (int.TryParse(ConfigurationManager.AppSettings["AccountId"], out temp))
+                this.accountId = temp;
+
             this.token = token;
-            this.accountId = accountId;
-            client = new WSClient(url);
+            client = new WSClient(streamingUrl);
             client.OnMessage(OnMessageReceived);
             client.OnConnect(OnConnect);
             client.OnDisconnect(OnDisconnect);
@@ -84,9 +90,10 @@ namespace TradingBlockApiTestHarness.Streaming
         private void OnConnect(WSClient obj)
         {
             Console.WriteLine("Connected");
-            string msg = SubscribeToSingles("S");
-            //msg = SubscribeToSpreads();
-            obj.SendMessage(msg);
+
+            //after the socket is connected, now can subscribe to updates
+            obj.SendMessage(SubscribeToOrderUpdates());
+            obj.SendMessage(SubscribeToSingles("S"));
         }
 
         private void OnMessageReceived(string arg1, WSClient arg2)
@@ -104,15 +111,15 @@ namespace TradingBlockApiTestHarness.Streaming
             //| 2 = QuoteTime
             //| 3 = Symbol
             //| 4 = LastTradePrice
-            //| 5 = BidPrice
-            //| 6 = AskPrice
+            //| 5 = BidPrice (omitted  if trade message)
+            //| 6 = AskPrice (omitted  if trade message)
             //| 7 = NetChange
             //| 8 = High
             //| 9 = Low
             //| 10 = Volume
             //| 11 = Change Percentage
-            //| 12 = Bid Size
-            //| 13 = Ask Size
+            //| 12 = Bid Size (omitted  if trade message)
+            //| 13 = Ask Size (omitted  if trade message)
 
             //0 = 0 (Success)
             //| 1 = 2 (i.e. Spread)
@@ -133,39 +140,39 @@ namespace TradingBlockApiTestHarness.Streaming
             //| 7 = FilledQuantity
             //| 8 = OrderPrice
             //| 9 = OrderAction
-                    //NONE = 0,
-                    //BUY = 1,
-                    //SELL = 2,
-                    //SHORT = 5,
-                    //SHORT_EXEMPT = 6
+            //NONE = 0,
+            //BUY = 1,
+            //SELL = 2,
+            //SHORT = 5,
+            //SHORT_EXEMPT = 6
             //| 10 = OrderStatus
-                    //Undefined = 0
-                    //New = 1
-                    //PartiallyFilled = 2
-                    //Filled = 3
-                    //DoneForDay = 4
-                    //Cancelled = 5
-                    //Replaced = 6
-                    //PendingCancel = 7
-                    //Stopped = 8
-                    //Rejected = 9
-                    //Suspended = 10
-                    //PendingNew = 11
-                    //Calculated = 12
-                    //Expired = 13
-                    //PendingReplace = 14
-                    //Saved = 15
-                    //LiveUntriggered = 16
-                    //Scheduled = 17
-                    //OCO_Untriggered = 18(OCO not supported at this time)
-                    //CancelledUntriggered = 19
-                    //Initiated = 20
-                    //ReplaceInitiated = 21
-                    //CancelInitiated = 22
-                    //CancelRejected = 23
-                    //ReplaceRejected = 24
-                    //Busted = 25
-                    //PreAllocated = 26
+            //Undefined = 0
+            //New = 1
+            //PartiallyFilled = 2
+            //Filled = 3
+            //DoneForDay = 4
+            //Cancelled = 5
+            //Replaced = 6
+            //PendingCancel = 7
+            //Stopped = 8
+            //Rejected = 9
+            //Suspended = 10
+            //PendingNew = 11
+            //Calculated = 12
+            //Expired = 13
+            //PendingReplace = 14
+            //Saved = 15
+            //LiveUntriggered = 16
+            //Scheduled = 17
+            //OCO_Untriggered = 18(OCO not supported at this time)
+            //CancelledUntriggered = 19
+            //Initiated = 20
+            //ReplaceInitiated = 21
+            //CancelInitiated = 22
+            //CancelRejected = 23
+            //ReplaceRejected = 24
+            //Busted = 25
+            //PreAllocated = 26
             //| 11 = Option Expiration (if update is for option)
             //| 12 = Option Call/Put (if update is for option)
             //| 13 = Option Strike (if update is for option)
@@ -195,7 +202,7 @@ namespace TradingBlockApiTestHarness.Streaming
         /// <returns></returns>
         private string SubscribeToSingles(string eqList)
         {
-            return $"0={token}|1={accountId}|10={eqList}";
+            return string.Format("0={0}|1={1}|10={2}", token, accountId, eqList);
         }
 
         /// <summary>
@@ -226,7 +233,7 @@ namespace TradingBlockApiTestHarness.Streaming
 
             string request = JsonConvert.SerializeObject(req);
 
-            return $"0={token}|1={accountId}|11={request}";
+            return string.Format("0={0}|1={1}|11={2}", token, accountId, request);
         }
 
         /// <summary>
@@ -236,7 +243,7 @@ namespace TradingBlockApiTestHarness.Streaming
         private string SubscribeToOrderUpdates()
         {
             //'13=1' is an order subscription request
-            return $"0={token}|1={accountId}|13=1";
+            return string.Format("0={0}|1={1}|13=1", token, accountId);
         }
 
         /// <summary>
@@ -246,7 +253,7 @@ namespace TradingBlockApiTestHarness.Streaming
         /// <returns></returns>
         private string SubscribeToBarUpdates(string barSymbol)
         {
-            return $"0={token}|1={accountId}|14={barSymbol}";
+            return string.Format("0={0}|1={1}|14={2}", token, accountId, barSymbol);
         }
 
         /// <summary>
@@ -258,7 +265,7 @@ namespace TradingBlockApiTestHarness.Streaming
         private string UnsubscribeFromUpdates(int type, string topic)
         {
             //9=0 indicates intent to unsubscribe from type and topic
-            return $"0={token}|1={accountId}|9=0|{type}={topic}";
+            return string.Format("0={0}|1={1}|9=0|{2}={3}", token, accountId, type, topic);
         }
     }
 }

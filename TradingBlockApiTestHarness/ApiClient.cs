@@ -24,13 +24,13 @@ namespace TradingBlockApiTestHarness
     internal class ApiClient
     {
         private static readonly string RequestResponseUrl = ConfigurationManager.AppSettings["RequestResponseUrl"];
-        private static readonly string StreamingUrl = ConfigurationManager.AppSettings["StreamingUrl"];
+
 
         private const string HEADER__Authorization = "Authorization";
 
-        private static readonly int AccountId;
+        private static int? AccountId = null;
 
-        private static readonly int? SubaccountId;
+        private static int? SubaccountId = null;
 
         static ApiClient()
         {
@@ -45,36 +45,32 @@ namespace TradingBlockApiTestHarness
                 };
             #endregion
 
-            int.TryParse(ConfigurationManager.AppSettings["AccountId"], out AccountId);
             int temp;
-            if (!int.TryParse(ConfigurationManager.AppSettings["SubaccountId"], out temp))
-                SubaccountId = null;
-            else
+            if (int.TryParse(ConfigurationManager.AppSettings["AccountId"], out temp))
+                AccountId = temp;
+
+            if (int.TryParse(ConfigurationManager.AppSettings["SubaccountId"], out temp))
                 SubaccountId = temp;
         }
 
-        public void RunTest()
+        public void RunTest(string token)
         {
-            string token = GetToken();
+            //careful with this
+            //CreateUser();
+
             if (string.IsNullOrEmpty(token))
                 return;
 
             try
             {
-                GetUserEntitlementInfo(token);
-                //using (Client wSClient = CreateStreamingClient(token))
-                //{
-                //    wSClient.RunAsync();
 
-                //Console.Read();
-                //}
+                //GetUserEntitlementInfo(token);
 
-
-                GetQuotes(token, new[] { "FB", "TSLA", "AMZN", "NVDA" });
-                GetBars(token, "IBM");
-                GetSpreadQuotes(token);
+                //GetQuotes(token, new[] { "FB", "TSLA", "AMZN", "NVDA" });
+                //GetBars(token, "IBM");
+                //GetSpreadQuotes(token);
                 //GetChain(token, "AAPL", null, new DateTime(2019, 11, 22), 235, 260, 8);
-                GetChains(token, "$SPX");
+                //GetChains(token, "$SPX");
                 GetAccountDetails(token);
                 GetSubAccountDetails(token);
 
@@ -86,7 +82,7 @@ namespace TradingBlockApiTestHarness
 
                 GetWarningSymbols(token);
 
-                OrderPlacements orders = new OrderPlacements(AccountId, SubaccountId);
+                OrderPlacements orders = new OrderPlacements(AccountId.Value, SubaccountId);
                 orders.CancelAllOrders(token);
                 orders.Run(token);
 
@@ -106,11 +102,6 @@ namespace TradingBlockApiTestHarness
             }
         }
 
-        private static Client CreateStreamingClient(string token)
-        {
-            return new Client(token, AccountId, StreamingUrl);
-        }
-
         private static WebClient CreateClient()
         {
             return CreateClient(null);
@@ -128,7 +119,7 @@ namespace TradingBlockApiTestHarness
         }
 
         #region Auth
-        private string GetToken()
+        internal string GetToken()
         {
             TokenRequest request = new TokenManager().CreateTokenRequest();
 
@@ -175,6 +166,40 @@ namespace TradingBlockApiTestHarness
         #endregion Auth
 
         #region User
+        private void CreateUser()
+        {
+            string address = "User/CreateUser";
+
+            var challenges = new List<CreateUserRequestSecurityChallenge>();
+            challenges.Add(new CreateUserRequestSecurityChallenge() { SecurityQuestionType = CreateUserRequestSecurityChallenge.ConvertIdToType(1), Answer = "blah" });
+            challenges.Add(new CreateUserRequestSecurityChallenge() { SecurityQuestionType = CreateUserRequestSecurityChallenge.ConvertIdToType(2), Answer = "blah" });
+            challenges.Add(new CreateUserRequestSecurityChallenge() { SecurityQuestionType = CreateUserRequestSecurityChallenge.ConvertIdToType(3), Answer = "blah" });
+
+            var newuser = new CreateUserRequest()
+            {
+                Email = "blah@blah.com",
+                FirstName = "Blah1",
+                LastName = "Blah2",
+                UserName = "blahUser",
+                PasswordSecret = "blahblahblah",
+                SecurityChallenges = challenges,
+                CreateInstantAccount = true
+            };
+
+            string resultString;
+            using (var client = CreateClient(null))
+            {
+                resultString = client.UploadString(address, "POST", JsonConvert.SerializeObject(newuser));
+            }
+
+            ResponseContainer<EntitlementInfo> response = JsonConvert.DeserializeObject<ResponseContainer<EntitlementInfo>>(resultString);
+
+            if (response.ResponseCode == (int)enumResponseCode.Success)
+                Console.WriteLine("Received account details: " + response.Payload);
+            else
+                Console.WriteLine("Failed to receive account details. Code: " + response.ResponseCode);
+
+        }
         /// <summary>
         /// MarketDataEntitlementTypeId:
         ///             1	ProfessionalUser
@@ -207,7 +232,7 @@ namespace TradingBlockApiTestHarness
         #region Account
         private List<AccountItem> GetAccountDetails(string token)
         {
-            string address = string.Format("Accounts/GetAccounts?accountId={0}&subaccountId={1}", AccountId, SubaccountId);
+            string address = string.Format("Accounts/GetAccounts?accountId={0}&subaccountId={1}", null, SubaccountId);
 
             string resultString;
             using (var client = CreateClient(token))
@@ -218,7 +243,10 @@ namespace TradingBlockApiTestHarness
             ResponseContainer<List<AccountItem>> response = JsonConvert.DeserializeObject<ResponseContainer<List<AccountItem>>>(resultString);
 
             if (response.ResponseCode == (int)enumResponseCode.Success)
+            {
+                AccountId = response.Payload.First().AccountId;
                 Console.WriteLine("Received account details: " + response.Payload);
+            }
             else
                 Console.WriteLine("Failed to receive account details. Code: " + response.ResponseCode);
 
@@ -352,7 +380,7 @@ namespace TradingBlockApiTestHarness
         /// <param name="strikeMax">Maximum (inclusive) strike price to filter, optional</param>
         /// <param name="strikesAroundMarket">Number of strikes above/below underlyin's current market price. If set, min/max strikes are ignored. Optional</param>
         /// <returns>RootSymbol, ExpirationDate, StrikePrice, OptionPair</returns>
-        private Dictionary<string, Dictionary<DateTime, Dictionary<double, OptionPair>>> GetChain(string token, string underlyingSymbol, string rootSymbol, DateTime? expiry, 
+        private Dictionary<string, Dictionary<DateTime, Dictionary<double, OptionPair>>> GetChain(string token, string underlyingSymbol, string rootSymbol, DateTime? expiry,
             double? strikeMin, double? strikeMax, int? strikesAroundMarket, bool? fetchGreeks = null)
         {
             string address = string.Format("Chains/GetChain?underlyingSymbol={0}", underlyingSymbol);
@@ -381,7 +409,7 @@ namespace TradingBlockApiTestHarness
                 resultString = client.DownloadString(address);
             }
 
-            ResponseContainer<Dictionary<string, Dictionary<DateTime, Dictionary<double, OptionPair>>>> response 
+            ResponseContainer<Dictionary<string, Dictionary<DateTime, Dictionary<double, OptionPair>>>> response
                 = JsonConvert.DeserializeObject<ResponseContainer<Dictionary<string, Dictionary<DateTime, Dictionary<double, OptionPair>>>>>(resultString);
 
             // Keys of the resulting dictionary are the following, starting with the outer-most:
@@ -437,7 +465,7 @@ namespace TradingBlockApiTestHarness
 
         private List<Bar> GetBars(string token, string symbol)
         {
-             //request fields:
+            //request fields:
             //symbol, 
             //starttime, 
             //endtime, 
@@ -520,7 +548,7 @@ namespace TradingBlockApiTestHarness
         #region Symbol
         private List<SymbolInfo> GetSymbols(string token, string query)
         {
-            string address = string.Format("Symbol/GetSymbols?query={0}&limit=25", query);
+            string address = string.Format("Symbol/Search?query={0}&limit=25", query);
 
             string responseString;
             using (var client = CreateClient(token))
@@ -540,7 +568,7 @@ namespace TradingBlockApiTestHarness
 
         private List<string> GetWarningSymbols(string token)
         {
-            string address = string.Format("Symbol/GetWarningSymbols");
+            string address = string.Format("Symbol/WarningSymbols");
 
             string responseString;
             using (var client = CreateClient(token))
@@ -592,7 +620,7 @@ namespace TradingBlockApiTestHarness
             else
                 Console.WriteLine("Failed to receive pnl items. Code: " + response.ResponseCode);
 
-            return null;            
+            return null;
         }
         #endregion
     }

@@ -88,8 +88,11 @@
     <Compile Include="DTO\Quotes\Spread.cs" />
     <Compile Include="DTO\Quotes\SymbolInfo.cs" />
     <Compile Include="DTO\ResponseContainer.cs" />
+    <Compile Include="DTO\User\CreateUserRequest.cs" />
+    <Compile Include="DTO\User\CreateUserRequestSecurityChallenge.cs" />
     <Compile Include="DTO\User\EntitlementInfo.cs" />
     <Compile Include="DTO\User\UserItem.cs" />
+    <Compile Include="DTO\User\UserRequest.cs" />
     <Compile Include="Encryption.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="OrderPlacements.cs" />
