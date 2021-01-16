@@ -103,6 +103,12 @@ namespace TradingBlockApiTestHarness.Streaming
 
             // If 0 != (int)DTO.Enums.ResponseCode.Success (1), no other fields will be supplied
 
+            //following message is sent out for token expiration due to duplicate logins
+            //0=2|1=90|2=10|3=duplicate logins
+
+            //simple token expiration due to 24 hour lifespan
+            //0=2|1=90|3=expired token
+
             //0 = 0 (Success)
             //| 1 = 100 (heartbeat every 10 seconds)
 
