@@ -128,6 +128,26 @@ namespace TradingBlockApiTestHarness.DTO.Orders
         /// </summary>
         public List<OrderEvent> OrderEvents { get; set; }
 
+        public enumStrategyType StrategyType { get; set; }
+
+        /// <summary>
+        /// Admin Property
+        /// Three possible values 0-'Unsolicited',1-'Solicited',2-'Discretionary'
+        /// </summary>
+        public enumPlacedAs PlacedAs { get; set; }
+
+        /// <summary>
+        /// Admin Property
+        /// Two possible values 0-'Agent',1-'Principal'
+        /// </summary>
+        public enumExecutedAs ExecutedAs { get; set; }
+
+        /// <summary>
+        /// Admin Property
+        /// Three possible values 0-'Online',1-'Assisted',2-'Override'
+        /// </summary>
+        public enumCommissionType CommissionType { get; set; }
+
         public Order()
         {
             Legs = new List<OrderLeg>();

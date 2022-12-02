@@ -1,4 +1,6 @@
-﻿namespace TradingBlockApiTestHarness.DTO.Enums
+﻿using System.Xml.Linq;
+
+namespace TradingBlockApiTestHarness.DTO.Enums
 {
     /// <summary>
     /// All API requests will return an error code in the response
@@ -81,6 +83,22 @@
         /// End user has no security questions on file; they need to create security questions
         /// </summary>
         EndUserHasNoSecurityQuestions = 114,
+        /// <summary>
+        /// Failed to change user's password
+        /// </summary>
+        FailedToChangePassword = 115,
+        /// <summary>
+        /// Failed to register for NoPass
+        /// </summary>
+        FailedToRegisterForNoPass = 116,
+        /// <summary>
+        /// Failed to login via NoPass
+        /// </summary>
+        FailedToLoginViaNoPass = 117,
+        /// <summary>
+        /// User already registered for NoPass
+        /// </summary>
+        UserAlreadyRegisteredForNoPass = 118,
         #endregion 100-199 LOGIN ONLY (GETTOKEN())
 
         #region 200-299 USER/ACCOUNT/SUBACCOUNT RELATED (typically shared by multiple of the other below categories)
@@ -124,6 +142,14 @@
         /// End user has failed to answer the security question correctly
         /// </summary>
         EndUserFailedTheSecurityQuestion = 209,
+        /// <summary>
+        /// Cognito generated IdToken failed validation or missing required claims
+        /// </summary>
+        FailedCognitoIdTokenValidation = 210,
+        /// <summary>
+        /// Attempt to create a new account that would be a duplicate (or a not allowed type) based on the tax ID.
+        /// </summary>
+        DuplicateAccountCreationAttempt = 211,
         #endregion 200-299 USER/ACCOUNT/SUBACCOUNT RELATED (typically shared by multiple of the other below categories)
 
         #region 300-399 ORDER PLACEMENT
@@ -209,16 +235,66 @@
         /// </summary>
         TransferAchRelationshipIsInInvalidStateForOperation = 510,
         /// <summary>
-        /// The Apex Sentinel service failed the requested operation
+        /// The ACH relationship is a duplicate of an existing active ACH relationship.
+        /// </summary>
+        DuplicateAchRelationship = 511,
+        /// <summary>
+        /// The requested operation cannot be completed because the ACH relationship has associated active transfers.
+        /// </summary>
+        AchRelationshipHasPendingTransfers = 512,
+        /// <summary>
+        /// The transfer recipient bank referenced by the transfer is in a State that is invalid for the requested operation.
+        /// </summary>
+        TransferRecipientBankIsInInvalidStateForOperation = 513,
+        /// <summary>
+        /// The requested transfer wire instruction was not found.
+        /// </summary>
+        TransferWireInstructionNotFound = 514,
+        /// <summary>
+        /// The transfer wire instruction referenced by the transfer is in a State that is invalid for the requested operation.
+        /// </summary>
+        TransferWireInstructionIsInInvalidStateForOperation = 515,
+        /// <summary>
+        /// The Apex Sentinel service failed the requested operation.
         /// </summary>
         ApexSentinelServiceFailedTheOperation = 550,
+        /// <summary>
+        /// The Plaid service failed the requested operation.
+        /// </summary>
+        PlaidServiceFailedTheOperation = 551,
+        /// <summary>
+        /// The RQD Cashiering service failed the requested operation.
+        /// </summary>
+        RqdCashieringServiceFailedTheOperation = 552,
         #endregion 500-599 CASHIERING
- 
+
         #region 600-699 USERS
         /// <summary>
         /// The user name failed validation or or is already in use
         /// </summary>
         UserNameIsInvalidOrAlreadyExists = 600,
         #endregion 600-699 USERS
+        #region 700-799 DOCUMENTS
+        /// <summary>
+        /// The requested document meta-data was not found.
+        /// </summary>
+        DocumentMetaDataNotFound = 700,
+        /// <summary>
+        /// Unsupported document file format.  Only JPEG, GIF, PNG and PDF are supported.
+        /// </summary>
+        UnsupportedDocumentFileFormat = 701,
+        /// <summary>
+        /// The file contents is too large. The limit is 15MB.
+        /// </summary>
+        DocumentTooLarge = 702,
+        /// <summary>
+        /// Too many uploads of the same document.
+        /// </summary>
+        TooManyUploadsForDocument = 703,
+        /// <summary>
+        /// The requested document dat not found.
+        /// </summary>
+        DocumentNotFound = 704,
+        #endregion 700-799 DOCUMENTS
     }
 }

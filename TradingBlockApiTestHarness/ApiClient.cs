@@ -63,27 +63,28 @@ namespace TradingBlockApiTestHarness
 
             try
             {
-
+                //ChangeUserPassword(token);
+                //ResetUserPassword(token);
                 //GetUserEntitlementInfo(token);
 
                 //GetQuotes(token, new[] { "FB", "TSLA", "AMZN", "NVDA" });
                 //GetBars(token, "IBM");
                 //GetSpreadQuotes(token);
-                //GetChain(token, "AAPL", null, new DateTime(2019, 11, 22), 235, 260, 8);
+                //GetChain(token, "FB", null, new DateTime(2022, 07, 15), 290, 3100, 8);
                 //GetChains(token, "$SPX");
-                GetAccountDetails(token);
-                GetSubAccountDetails(token);
+                //GetAccountDetails(token);
+                //GetSubAccountDetails(token);
 
-                GetAvailableFunds(token);
+                //GetAvailableFunds(token);
 
-                GetPnL(token, DateTime.Today.AddDays(-20), null);
+                //GetPnL(token, DateTime.Today.AddDays(-20), null);
 
-                GetSymbols(token, "GOOG");
+                //GetSymbols(token, "GOOG");
 
-                GetWarningSymbols(token);
+                //GetWarningSymbols(token);
 
                 OrderPlacements orders = new OrderPlacements(AccountId.Value, SubaccountId);
-                orders.CancelAllOrders(token);
+                //orders.CancelAllOrders(token);
                 orders.Run(token);
 
                 var positions = GetPositions(token, null, null);
@@ -192,7 +193,7 @@ namespace TradingBlockApiTestHarness
                 resultString = client.UploadString(address, "POST", JsonConvert.SerializeObject(newuser));
             }
 
-            ResponseContainer<EntitlementInfo> response = JsonConvert.DeserializeObject<ResponseContainer<EntitlementInfo>>(resultString);
+            ResponseContainer<GenericResponse> response = JsonConvert.DeserializeObject<ResponseContainer<GenericResponse>>(resultString);
 
             if (response.ResponseCode == (int)enumResponseCode.Success)
                 Console.WriteLine("Received account details: " + response.Payload);
@@ -227,6 +228,8 @@ namespace TradingBlockApiTestHarness
 
             return response.Payload;
         }
+
+        
         #endregion
 
         #region Account

@@ -27,16 +27,16 @@ namespace TradingBlockApiTestHarness
         internal void Run(string token)
         {
             var orders = GetOrders(token);
-            if (orders != null && orders.Items.Any())
-            {
-                foreach (var order in orders.Items)
-                {
-                    GetOrders(token, null, order.OrderId.Value, false);
-                    UseCancelOrder(token, order.OrderId.Value, 123456);
-                }
-            }
+            //if (orders != null && orders.Items.Any())
+            //{
+            //    foreach (var order in orders.Items)
+            //    {
+            //        GetOrders(token, null, order.OrderId.Value, false);
+            //        UseCancelOrder(token, order.OrderId.Value, 123456);
+            //    }
+            //}
 
-            GetOrders(token, null, 0, true);
+            //GetOrders(token, null, 0, true);
 
             //var confirm = PlaceSpreadOrder(token, enumOrderType.Market, null, null, 12345);
 
@@ -48,7 +48,12 @@ namespace TradingBlockApiTestHarness
 
             sw.Start();
             //place option order
-            OrderConfirmation confirmation = PlaceSimpleOrder(token, "GS", "GS", enumAssetType.Equity, enumPositionEffect.Open, enumOrderAction.Buy, enumOrderType.Limit, (decimal)10.01, null, 123);
+            OrderConfirmation confirmation = PlaceSimpleOrder(token, 
+                ".META 220715C200000", 
+                "META", 
+                enumAssetType.Option, 
+                enumPositionEffect.Open, 
+                enumOrderAction.Buy, 5, enumOrderType.Limit, (decimal)0.1, null, 123);
 
             sw.Stop();
 
@@ -66,7 +71,7 @@ namespace TradingBlockApiTestHarness
                 //Console.WriteLine("Modify order in " + sw.ElapsedMilliseconds);
                 sw.Restart();
 
-                confirmation = UseCancelOrder(token, confirmation.OrderId, 123);
+                //confirmation = UseCancelOrder(token, confirmation.OrderId, 123);
 
                 sw.Stop();
                 Console.WriteLine("Cancel order in " + sw.ElapsedMilliseconds);
@@ -92,13 +97,13 @@ namespace TradingBlockApiTestHarness
             }
             */
             //stock
-            confirmation = PlaceSimpleOrder(token, "S", "", enumAssetType.Equity, enumPositionEffect.Open, enumOrderAction.Buy, enumOrderType.Market, null, null, 124);
+            //confirmation = PlaceSimpleOrder(token, "S", "", enumAssetType.Equity, enumPositionEffect.Open, enumOrderAction.Buy, 10, enumOrderType.Market, null, null, 124);
 
             // Wait for the market to fill/acknowledge the order
-            Thread.Sleep(1000);
+            //Thread.Sleep(1000);
 
-            if (confirmation.OrderId > 0)
-                confirmation = ModifyOrder(token, confirmation.OrderId, enumOrderType.Limit, (decimal)4.01, null, 125);
+            //if (confirmation.OrderId > 0)
+            //    confirmation = ModifyOrder(token, confirmation.OrderId, enumOrderType.Limit, (decimal)4.01, null, 125);
         }
 
         private Order InitOrder()
@@ -148,7 +153,7 @@ namespace TradingBlockApiTestHarness
         }
 
         internal OrderConfirmation PlaceSimpleOrder(string token, string symbol, string underlying,
-            enumAssetType assetType, enumPositionEffect positionEffect, enumOrderAction action, enumOrderType orderType,
+            enumAssetType assetType, enumPositionEffect positionEffect, enumOrderAction action, double quantity, enumOrderType orderType,
             decimal? price, decimal? stop, int referenceId)
         {
             Order order = InitOrder();
@@ -170,8 +175,11 @@ namespace TradingBlockApiTestHarness
 
             order.ClientRefId = referenceId;
 
+            order.PlacedAs = enumPlacedAs.Solicited;
+            order.ExecutedAs = enumExecutedAs.Principal;
+
             order.OrderClass = enumOrderClass.Single;
-            order.Quantity = 10;
+            order.Quantity = quantity;
 
             order.OrderType = orderType;
             order.Price = price;
@@ -315,7 +323,7 @@ namespace TradingBlockApiTestHarness
 
         internal void ClosePosition(string token, PositionLot position)
         {
-            PlaceSimpleOrder(token, position.Symbol, position.UnderlyingSymbol, position.AssetType, enumPositionEffect.Close, (position.OpenQuantity > 0 ? enumOrderAction.Sell : enumOrderAction.Buy), enumOrderType.Market, null, null, 1);
+            PlaceSimpleOrder(token, position.Symbol, position.UnderlyingSymbol, position.AssetType, enumPositionEffect.Close, (position.OpenQuantity > 0 ? enumOrderAction.Sell : enumOrderAction.Buy), position.OpenQuantity, enumOrderType.Market, null, null, 1);
         }
 
         internal void CancelAllOrders(string token)

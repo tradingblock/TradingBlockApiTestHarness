@@ -99,7 +99,7 @@ namespace TradingBlockApiTestHarness.Streaming
         private void OnMessageReceived(string arg1, WSClient arg2)
         {
             // 0 = (int)TradingBlockApiTestHarness.DTO.Enums.ResponseCode
-            // 1 = MessageType (0=HeartBeat, 1=Quote, 2=Spread, 3=OrderUpdate)
+            // 1 = MessageType (0=HeartBeat, 1=Quote, 2=Spread, 3=OrderUpdate, 4=Bar)
 
             // If 0 != (int)DTO.Enums.ResponseCode.Success (1), no other fields will be supplied
 
@@ -145,40 +145,42 @@ namespace TradingBlockApiTestHarness.Streaming
             //| 6 = OrderQuantity
             //| 7 = FilledQuantity
             //| 8 = OrderPrice
+                    // Filled OR Partial then TradePrice, else order price
             //| 9 = OrderAction
-            //NONE = 0,
-            //BUY = 1,
-            //SELL = 2,
-            //SHORT = 5,
-            //SHORT_EXEMPT = 6
+                    //NONE = 0,
+                    //BUY = 1,
+                    //SELL = 2,
+                    //SHORT = 5,
+                    //SHORT_EXEMPT = 6
             //| 10 = OrderStatus
-            //Undefined = 0
-            //New = 1
-            //PartiallyFilled = 2
-            //Filled = 3
-            //DoneForDay = 4
-            //Cancelled = 5
-            //Replaced = 6
-            //PendingCancel = 7
-            //Stopped = 8
-            //Rejected = 9
-            //Suspended = 10
-            //PendingNew = 11
-            //Calculated = 12
-            //Expired = 13
-            //PendingReplace = 14
-            //Saved = 15
-            //LiveUntriggered = 16
-            //Scheduled = 17
-            //OCO_Untriggered = 18(OCO not supported at this time)
-            //CancelledUntriggered = 19
-            //Initiated = 20
-            //ReplaceInitiated = 21
-            //CancelInitiated = 22
-            //CancelRejected = 23
-            //ReplaceRejected = 24
-            //Busted = 25
-            //PreAllocated = 26
+                    //Undefined = 0
+                    //New = 1
+                    //PartiallyFilled = 2
+                    //Filled = 3
+                    //DoneForDay = 4
+                    //Cancelled = 5
+                    //Replaced = 6
+                    //PendingCancel = 7
+                    //Stopped = 8
+                    //Rejected = 9
+                    //Suspended = 10
+                    //PendingNew = 11
+                    //Calculated = 12
+                    //Expired = 13
+                    //PendingReplace = 14
+                    //Saved = 15
+                    //LiveUntriggered = 16
+                    //Scheduled = 17
+                    //OCO_Untriggered = 18(OCO not supported at this time)
+                    //CancelledUntriggered = 19
+                    //Initiated = 20
+                    //ReplaceInitiated = 21
+                    //CancelInitiated = 22
+                    //CancelRejected = 23
+                    //ReplaceRejected = 24
+                    //Busted = 25
+                    //PreAllocated = 26,
+                    //Acknowledged = 27
             //| 11 = Option Expiration (if update is for option)
             //| 12 = Option Call/Put (if update is for option)
             //| 13 = Option Strike (if update is for option)

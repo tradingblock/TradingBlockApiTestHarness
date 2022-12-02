@@ -10,10 +10,10 @@ namespace TradingBlockApiTestHarness
             ApiClient test = new ApiClient();
             var token = test.GetToken();
 
-            using (Client wSClient = new Client(token))
-            {
-                wSClient.RunAsync();
-            }
+            //using (Client wSClient = new Client(token))
+            //{
+            //    wSClient.RunAsync();
+            //}
 
             test.RunTest(token);
 
