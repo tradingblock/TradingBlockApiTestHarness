@@ -185,8 +185,15 @@ namespace TradingBlockApiTestHarness.Streaming
             //| 12 = Option Call/Put (if update is for option)
             //| 13 = Option Strike (if update is for option)
 
+            //0=0
+            //| 1 = 4 (Settlement)
+            //| 2 = Settlement time
+            //| 3 = Symbol
+            //| 4 = Settlement Price
+            //| 5 = Prev Close
+
             //0 = 0
-            //| 1 = 4 (Streaming bar update)
+            //| 1 = 5 (Streaming bar update)
             //| 2 = Bar start time
             //| 3 = Symbol
             //| 4 = Open
