@@ -99,7 +99,7 @@ namespace TradingBlockApiTestHarness.Streaming
         private void OnMessageReceived(string arg1, WSClient arg2)
         {
             // 0 = (int)TradingBlockApiTestHarness.DTO.Enums.ResponseCode
-            // 1 = MessageType (0=HeartBeat, 1=Quote, 2=Spread, 3=OrderUpdate, 4=Bar)
+            // 1 = MessageType (0=HeartBeat, 1=Quote, 2=Spread, 3=OrderUpdate, 4=Settlement, 5=Bar)
 
             // If 0 != (int)DTO.Enums.ResponseCode.Success (1), no other fields will be supplied
 
