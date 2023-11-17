@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -147,40 +148,40 @@ namespace TradingBlockApiTestHarness.Streaming
             //| 8 = OrderPrice
             // Filled OR Partial then TradePrice, else order price
             //| 9 = OrderAction
-            //NONE = 0,
-            //BUY = 1,
-            //SELL = 2,
-            //SHORT = 5,
-            //SHORT_EXEMPT = 6
-            //| 10 = OrderStatus
-            //Undefined = 0
-            //New = 1
-            //PartiallyFilled = 2
-            //Filled = 3
-            //DoneForDay = 4
-            //Cancelled = 5
-            //Replaced = 6
-            //PendingCancel = 7
-            //Stopped = 8
-            //Rejected = 9
-            //Suspended = 10
-            //PendingNew = 11
-            //Calculated = 12
-            //Expired = 13
-            //PendingReplace = 14
-            //Saved = 15
-            //LiveUntriggered = 16
-            //Scheduled = 17
-            //OCO_Untriggered = 18(OCO not supported at this time)
-            //CancelledUntriggered = 19
-            //Initiated = 20
-            //ReplaceInitiated = 21
-            //CancelInitiated = 22
-            //CancelRejected = 23
-            //ReplaceRejected = 24
-            //Busted = 25
-            //PreAllocated = 26,
-            //Acknowledged = 27
+                //NONE = 0,
+                //BUY = 1,
+                //SELL = 2,
+                //SHORT = 5,
+                //SHORT_EXEMPT = 6
+                //| 10 = OrderStatus
+                //Undefined = 0
+                //New = 1
+                //PartiallyFilled = 2
+                //Filled = 3
+                //DoneForDay = 4
+                //Cancelled = 5
+                //Replaced = 6
+                //PendingCancel = 7
+                //Stopped = 8
+                //Rejected = 9
+                //Suspended = 10
+                //PendingNew = 11
+                //Calculated = 12
+                //Expired = 13
+                //PendingReplace = 14
+                //Saved = 15
+                //LiveUntriggered = 16
+                //Scheduled = 17
+                //OCO_Untriggered = 18(OCO not supported at this time)
+                //CancelledUntriggered = 19
+                //Initiated = 20
+                //ReplaceInitiated = 21
+                //CancelInitiated = 22
+                //CancelRejected = 23
+                //ReplaceRejected = 24
+                //Busted = 25
+                //PreAllocated = 26,
+                //Acknowledged = 27
             //| 11 = Option Expiration (if update is for option)
             //| 12 = Option Call/Put (if update is for option)
             //| 13 = Option Strike (if update is for option)
@@ -215,6 +216,19 @@ namespace TradingBlockApiTestHarness.Streaming
 
             //Subscribe to     Cashiering Updates: 0 ={ guid}| 1 ={ accountId}| 15 = 1
             //Unsubscribe from Cashiering Updates: 0 ={ guid}| 1 ={ accountId}| 15 = 2
+
+            // 0 = 0
+            //| 1 = 7 (Account Application Update)
+            //| 2 = AccountId
+            //| 3 = UpdateTime.ToUniversalTime().ToString("MM/dd/yyyy HH:mm:ss:fffZ")
+            //| 4 = Type
+                // AccountApplication
+                // AccountInvestigation
+            //| 5 = InvestigationId (Only present if Type is AccountInvestigation)
+            //| 6 = State
+
+            //Subscribe to   Account Application Updates: 0 ={ guid}| 1 ={ accountId}| 16 = 1
+            //Unsubscribe to Account Application Updates: 0 ={ guid}| 1 ={ accountId}| 16 = 2
 
             //0 = 2 Authorization token
             //| 1 = 90 expired token
