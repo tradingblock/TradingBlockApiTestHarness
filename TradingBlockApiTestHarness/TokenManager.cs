@@ -143,9 +143,10 @@ namespace TradingBlockApiTestHarness
             byte[] byteEncrypted;
             using (MemoryStream plainText = new MemoryStream(byteToEncrypt))
             {
-                MemoryStream encryptedData = Encryption.Encrypt(_apiKey, plainText);
-                byteEncrypted = encryptedData.ToArray();
-                encryptedData.Dispose();
+                using (MemoryStream encryptedData = Encryption.Encrypt(_apiKey, plainText))
+                {
+                    byteEncrypted = encryptedData.ToArray();
+                }
             }
             string strEncrypted = Base64UrlEncode(byteEncrypted);
 
